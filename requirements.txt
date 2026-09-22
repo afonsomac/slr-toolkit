@@ -1,0 +1,7 @@
+streamlit
+pymupdf
+pandas
+pyvis
+requests
+openpyxl
+xlrd
