@@ -80,9 +80,14 @@ st.sidebar.divider()
 # --- NOVO: Controlos Interativos para o Grafo Pyvis ---
 with st.sidebar.expander("⚙️ Graph Visualization Settings", expanded=False):
     st.markdown("Adjust the physics engine to untangle large networks.")
+    
+    # O "botão mágico" para fixar as bolas
+    fisica_ativada = st.checkbox("Physics Enabled (Uncheck to freeze nodes in place)", value=True)
+    
     tamanho_letra = st.slider("Font Size", min_value=10, max_value=50, value=26)
-    distancia_nos = st.slider("Node Distance (Spring Length)", min_value=100, max_value=800, value=350, step=50)
-    forca_repulsao = st.slider("Repulsion Force", min_value=-30000, max_value=-5000, value=-15000, step=1000)
+    distancia_nos = st.slider("Node Distance (Spring Length)", min_value=100, max_value=1000, value=450, step=50)
+    forca_repulsao = st.slider("Repulsion Force", min_value=-50000, max_value=-5000, value=-25000, step=1000)
+    gravidade = st.slider("Central Gravity", min_value=0.0, max_value=1.0, value=0.02, step=0.01)
 
 st.sidebar.divider()
 
@@ -225,13 +230,14 @@ if 'df_asym_bin' in st.session_state:
         }
       },
       "physics": {
+        "enabled": fisica_ativada, # Liga/Desliga conforme o visto na checkbox
         "barnesHut": {
           "gravitationalConstant": forca_repulsao,
-          "centralGravity": 0.1,
+          "centralGravity": gravidade,
           "springLength": distancia_nos,
-          "springConstant": 0.04,
-          "damping": 0.09,
-          "avoidOverlap": 0.5
+          "springConstant": 0.02,  # Mola mais fraca para não ser tão agressiva
+          "damping": 0.1,
+          "avoidOverlap": 1.0      # Força máxima (1.0) para impedir que bolas grandes se sobreponham
         },
         "minVelocity": 0.75,
         "stabilization": {
