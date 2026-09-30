@@ -5,3 +5,4 @@ pyvis
 requests
 openpyxl
 xlrd
+matplotlib
