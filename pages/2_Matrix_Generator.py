@@ -3,6 +3,7 @@ import streamlit.components.v1 as components
 import pymupdf
 import pandas as pd
 import re
+import json # <-- ADICIONADO: Necessário para o novo motor de física do Pyvis
 from pyvis.network import Network
 
 # --- Page Configuration ---
@@ -76,7 +77,16 @@ if groups_to_remove:
 
 st.sidebar.divider()
 
-# --- NEW: Academic ROI (Citation) ---
+# --- NOVO: Controlos Interativos para o Grafo Pyvis ---
+with st.sidebar.expander("⚙️ Graph Visualization Settings", expanded=False):
+    st.markdown("Adjust the physics engine to untangle large networks.")
+    tamanho_letra = st.slider("Font Size", min_value=10, max_value=50, value=26)
+    distancia_nos = st.slider("Node Distance (Spring Length)", min_value=100, max_value=800, value=350, step=50)
+    forca_repulsao = st.slider("Repulsion Force", min_value=-30000, max_value=-5000, value=-15000, step=1000)
+
+st.sidebar.divider()
+
+# --- Academic ROI (Citation) ---
 with st.sidebar.expander("ℹ️ About & How to Cite"):
     st.markdown("""
     **SLR Matrix Generator v1.0**  
@@ -93,7 +103,7 @@ pdf_files = st.file_uploader("Drag and drop your PDF files here", type=["pdf"], 
 st.markdown("---")
 st.header("2. Run Analysis")
 
-# --- NEW: Run and Clear Buttons side by side ---
+# Run and Clear Buttons side by side
 col_run, col_clear = st.columns([4, 1])
 with col_run:
     execute_button = st.button("Generate Literature Matrices", type="primary", use_container_width=True)
@@ -189,9 +199,9 @@ if 'df_asym_bin' in st.session_state:
     
     # Interactive Network Graph
     st.subheader("🌐 Network Graph: Theme Relationships")
-    st.info("Interactive graph! Drag the nodes, zoom in/out. Node size = Total papers. Line thickness = Co-occurrences.")
+    st.info("Use the 'Graph Visualization Settings' in the sidebar to adjust text size and node spacing.")
     
-    net = Network(height='500px', width='100%', bgcolor='#f8f9fa', font_color='#2c3e50')
+    net = Network(height='750px', width='100%', bgcolor='#f8f9fa', font_color='#2c3e50')
     temas = df_sym.columns.tolist()
     
     for tema in temas:
@@ -206,16 +216,39 @@ if 'df_asym_bin' in st.session_state:
                 if coocorrencia > 0:
                     net.add_edge(tema_A, tema_B, value=coocorrencia, title=f"Co-occurrence: {coocorrencia}")
                     
-    net.repulsion(node_distance=150, central_gravity=0.2, spring_length=150, spring_strength=0.05, damping=0.09)
+    # --- NOVO: Configuração Dinâmica injetada com JSON ---
+    opcoes_pyvis = {
+      "nodes": {
+        "font": {
+          "size": tamanho_letra,
+          "face": "Helvetica"
+        }
+      },
+      "physics": {
+        "barnesHut": {
+          "gravitationalConstant": forca_repulsao,
+          "centralGravity": 0.1,
+          "springLength": distancia_nos,
+          "springConstant": 0.04,
+          "damping": 0.09,
+          "avoidOverlap": 0.5
+        },
+        "minVelocity": 0.75,
+        "stabilization": {
+          "enabled": True,
+          "iterations": 1000
+        }
+      }
+    }
+    net.set_options(json.dumps(opcoes_pyvis))
     
     try:
         path_html = "pyvis_graph.html"
         net.save_graph(path_html)
         with open(path_html, 'r', encoding='utf-8') as HtmlFile:
             source_code = HtmlFile.read()
-            components.html(source_code, height=520)
+            components.html(source_code, height=770) # Aumentado a altura do container
             
-            # --- NEW: Download button for the HTML Graph ---
             st.download_button(
                 label="Download Interactive Graph (HTML)",
                 data=source_code,
