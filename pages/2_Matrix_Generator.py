@@ -3,7 +3,7 @@ import streamlit.components.v1 as components
 import pymupdf
 import pandas as pd
 import re
-import json # <-- ADICIONADO: Necessário para o novo motor de física do Pyvis
+import json # 
 from pyvis.network import Network
 
 # --- Page Configuration ---
