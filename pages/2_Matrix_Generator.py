@@ -206,7 +206,7 @@ if 'df_asym_bin' in st.session_state:
     st.subheader("🌐 Network Graph: Theme Relationships")
     st.info("Use the 'Graph Visualization Settings' in the sidebar to adjust text size and node spacing.")
     
-    net = Network(height='750px', width='100%', bgcolor='#f8f9fa', font_color='#2c3e50')
+    net = Network(height='750px', width='100%', bgcolor='#ffffff', font_color='#2c3e50')
     temas = df_sym.columns.tolist()
     
     for tema in temas:
