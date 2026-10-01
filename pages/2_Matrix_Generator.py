@@ -226,7 +226,7 @@ if 'df_asym_bin' in st.session_state:
       "nodes": {
         "font": {
           "size": tamanho_letra,
-          "face": "Helvetica"
+          "face": "Times New Roman"
         }
       },
       "physics": {
